@@ -8,11 +8,11 @@ const alphabet = 'abcdefghijklmnopqrstuvwxyz';
 
 function launchHack() {
   for(let i = 0; i < alphabet.length; i++) {
-    const res = callApi(alphabet[i]);
+    const res = callApi(alphabet[i], i == alphabet.length - 1);
   }
 }
 
-function callApi(subquery) {
+function callApi(subquery, showDatTags) {
   const path = `/_/api/tags?source=typeahead&q=${subquery}`;
 
   const options = {
@@ -29,7 +29,7 @@ function callApi(subquery) {
     });
 
     res.on('end', () => {
-      handleHack(parse(body));
+      handleHack(parse(body), showDatTags);
     });
 
     res.on('error', (err) => {
@@ -42,13 +42,16 @@ function parse(result) {
   return JSON.parse(result.substring('])}while(1);</x>'.length));
 }
 
-function handleHack(res) {
+function handleHack(res, showDatTags) {
   const rawTags = res.payload.value;
   const tags = rawTags.map((item) => {
     return {name: item.name, followerCount: item.metadata.followerCount, postCount: item.metadata.postCount}
   });
   TAGS = TAGS.concat(tags);
-  showTop(TAGS_REPORT_AMOUNT);
+
+  if (showDatTags) {
+    showTop(TAGS_REPORT_AMOUNT);
+  }
 }
 
 function showTop(amount) {
